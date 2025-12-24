@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess - PlayHub</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .chess-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chess-container {
+        max-width: 980px;
+        margin: 80px auto 40px;
+        padding: 22px 18px 30px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.24), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.22), transparent 55%),
+          rgba(15, 23, 42, 0.96);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.96);
+        backdrop-filter: blur(22px);
+      }
+
+      .chess-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .chess-header-main h1 {
+        font-family: "Baloo 2", system-ui;
+        font-size: 2.3rem;
+        margin-bottom: 4px;
+        background: linear-gradient(120deg, #a5b4fc, #fb7185, #facc15);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+
+      .chess-header-main p {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
+
+      .mode-panel {
+        padding: 10px 12px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        font-size: 0.82rem;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .mode-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .pill-toggle-group {
+        display: inline-flex;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        padding: 2px;
+      }
+
+      .pill-toggle {
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.78rem;
+        border: none;
+        background: transparent;
+        color: #e5e7eb;
+        cursor: pointer;
+        transition: background 0.16s ease, color 0.16s ease;
+      }
+
+      .pill-toggle.active {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: #e5e7eb;
+      }
+
+      .select {
+        background: rgba(15, 23, 42, 0.96);
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        color: #e5e7eb;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        outline: none;
+      }
+
+      .chess-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 20px;
+        margin-top: 10px;
+      }
+
+      .board-wrapper {
+        border-radius: 22px;
+        padding: 12px;
+        background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.8), transparent 55%),
+          rgba(15, 23, 42, 0.98);
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.98);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.9);
+      }
+
+      .square {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* square */
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+      }
+
+      .square.light {
+        background: #e5e7eb;
+        color: #020617;
+      }
+
+      .square.dark {
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      .square.highlight-move {
+        box-shadow: inset 0 0 0 2px rgba(56, 189, 248, 0.9);
+      }
+
+      .square.highlight-capture {
+        box-shadow: inset 0 0 0 2px rgba(248, 113, 113, 0.9);
+      }
+
+      .square.selected {
+        box-shadow: inset 0 0 0 3px rgba(52, 211, 153, 0.95);
+        transform: translateY(-1px);
+      }
+
+      .piece-white {
+        text-shadow: 0 0 12px rgba(249, 250, 251, 0.8);
+      }
+
+      .piece-black {
+        text-shadow: 0 0 14px rgba(15, 23, 42, 0.9);
+      }
+
+      .side-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .status-box {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.98);
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        font-size: 0.9rem;
+      }
+
+      .status-main {
+        font-weight: 600;
+      }
+
+      .status-main.player-white {
+        color: #a5b4fc;
+      }
+
+      .status-main.player-black {
+        color: #fb7185;
+      }
+
+      .status-main.computer-turn {
+        color: #facc15;
+      }
+
+      .status-sub {
+        margin-top: 4px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      .captured-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+        font-size: 1.1rem;
+      }
+
+      .panel-heading {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .moves-log {
+        padding: 10px 12px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        font-size: 0.8rem;
+        max-height: 210px;
+        overflow-y: auto;
+      }
+
+      .moves-log-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+        row-gap: 2px;
+      }
+
+      .move-item {
+        color: #e5e7eb;
+      }
+
+      .move-item span {
+        color: var(--text-muted);
+        margin-right: 4px;
+      }
+
+      .back-button {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        padding: 7px 14px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        border-radius: 999px;
+        color: #e5e7eb;
+        text-decoration: none;
+        font-size: 0.86rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.96);
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        z-index: 25;
+      }
+
+      .back-button:hover {
+        transform: translateX(-2px);
+        border-color: rgba(248, 250, 252, 0.7);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.98);
+      }
+
+      @media (max-width: 900px) {
+        .chess-container {
+          margin-top: 76px;
+        }
+        .chess-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .chess-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="chess-page">
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <a href="index.html" class="back-button">← Back to hub</a>
+
+    <main class="chess-container">
+      <header class="chess-header">
+        <div class="chess-header-main">
+          <h1>♟️ Chess Arena</h1>
+          <p>Play locally with a friend or challenge the computer with different difficulty levels.</p>
+        </div>
+        <div class="mode-panel">
+          <div class="mode-row">
+            <span>Mode:</span>
+            <div class="pill-toggle-group">
+              <button class="pill-toggle active" id="mode-human">2 Players</button>
+              <button class="pill-toggle" id="mode-computer">Vs Computer</button>
+            </div>
+          </div>
+          <div class="mode-row" id="difficulty-row" style="display: none">
+            <span>Difficulty:</span>
+            <select class="select" id="difficulty-select">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="extreme">Extreme</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <section class="chess-layout">
+        <div class="board-wrapper">
+          <div id="board" class="board"></div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="status-box">
+            <div id="status-main" class="status-main player-white">White to move</div>
+            <div id="status-sub" class="status-sub">
+              Select a piece to see its possible moves. Checkmate ends the game.
+            </div>
+          </div>
+
+          <div class="status-box">
+            <div class="panel-heading">Captured pieces</div>
+            <div>
+              <span style="font-size: 0.82rem; color: var(--text-muted)">By White:</span>
+              <div id="captured-by-white" class="captured-row"></div>
+            </div>
+            <div style="margin-top: 6px">
+              <span style="font-size: 0.82rem; color: var(--text-muted)">By Black:</span>
+              <div id="captured-by-black" class="captured-row"></div>
+            </div>
+          </div>
+
+          <div class="status-box">
+            <div class="panel-heading">Controls</div>
+            <div class="controls-row">
+              <button class="btn primary" type="button" id="new-game-btn">New game</button>
+              <button class="btn ghost" type="button" id="undo-btn">Undo</button>
+            </div>
+          </div>
+
+          <div class="moves-log">
+            <div class="panel-heading">Moves</div>
+            <ul id="moves-list" class="moves-log-list"></ul>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      // --- Basic chess engine (simplified, no castling/en-passant/promotion yet) ---
+      const boardEl = document.getElementById("board");
+      const statusMainEl = document.getElementById("status-main");
+      const statusSubEl = document.getElementById("status-sub");
+      const capturedWhiteEl = document.getElementById("captured-by-white");
+      const capturedBlackEl = document.getElementById("captured-by-black");
+      const movesListEl = document.getElementById("moves-list");
+      const newGameBtn = document.getElementById("new-game-btn");
+      const undoBtn = document.getElementById("undo-btn");
+      const modeHumanBtn = document.getElementById("mode-human");
+      const modeComputerBtn = document.getElementById("mode-computer");
+      const difficultyRow = document.getElementById("difficulty-row");
+      const difficultySelect = document.getElementById("difficulty-select");
+
+      const START_FEN =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"; // simplified FEN without extra fields
+
+      let gameState = createGameStateFromFen(START_FEN);
+      let selectedSquare = null;
+      let legalMovesForSelected = [];
+      let moveHistory = [];
+      let mode = "human"; // 'human' or 'computer'
+      let difficulty = "easy"; // easy | medium | hard | extreme
+      let isComputing = false;
+
+      const pieceSymbols = {
+        p: "♟",
+        r: "♜",
+        n: "♞",
+        b: "♝",
+        q: "♛",
+        k: "♚",
+        P: "♙",
+        R: "♖",
+        N: "♘",
+        B: "♗",
+        Q: "♕",
+        K: "♔",
+      };
+
+      function createGameStateFromFen(fen) {
+        const [position, activeColor] = fen.split(" ");
+        const rows = position.split("/");
+        const board = [];
+        for (let r = 0; r < 8; r++) {
+          const row = [];
+          let rowStr = rows[r];
+          for (const ch of rowStr) {
+            if (Number.isInteger(Number(ch))) {
+              const count = Number(ch);
+              for (let i = 0; i < count; i++) row.push(null);
+            } else {
+              row.push(ch);
+            }
+          }
+          board.push(row);
+        }
+        return {
+          board,
+          activeColor: activeColor || "w",
+          halfmove: 0,
+          fullmove: 1,
+          capturedWhite: [],
+          capturedBlack: [],
+        };
+      }
+
+      function cloneState(state) {
+        return {
+          board: state.board.map((row) => row.slice()),
+          activeColor: state.activeColor,
+          halfmove: state.halfmove,
+          fullmove: state.fullmove,
+          capturedWhite: state.capturedWhite.slice(),
+          capturedBlack: state.capturedBlack.slice(),
+        };
+      }
+
+      function squareId(row, col) {
+        return row * 8 + col;
+      }
+
+      function rowColFromId(id) {
+        return { row: Math.floor(id / 8), col: id % 8 };
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = "";
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const sq = document.createElement("div");
+            sq.classList.add("square");
+            const isLight = (row + col) % 2 === 0;
+            sq.classList.add(isLight ? "light" : "dark");
+            sq.dataset.id = squareId(row, col);
+            const piece = gameState.board[row][col];
+            if (piece) {
+              const span = document.createElement("span");
+              span.textContent = pieceSymbols[piece] || "";
+              span.classList.add(piece === piece.toUpperCase() ? "piece-white" : "piece-black");
+              sq.appendChild(span);
+            }
+            sq.addEventListener("click", () => handleSquareClick(row, col));
+            boardEl.appendChild(sq);
+          }
+        }
+        updateStatus();
+        renderCaptured();
+        renderMovesLog();
+      }
+
+      function handleSquareClick(row, col) {
+        if (isComputing) return;
+
+        const piece = gameState.board[row][col];
+        const currentColor = gameState.activeColor;
+        const isComputerTurn = mode === "computer" && currentColor === "b";
+        if (isComputerTurn) return;
+
+        const isOurPiece =
+          piece && ((currentColor === "w" && piece === piece.toUpperCase()) || (currentColor === "b" && piece === piece.toLowerCase()));
+
+        const clickedId = squareId(row, col);
+
+        if (selectedSquare !== null && legalMovesForSelected.some((m) => m.to === clickedId)) {
+          const move = legalMovesForSelected.find((m) => m.to === clickedId);
+          makeMove(move);
+          return;
+        }
+
+        if (!isOurPiece) {
+          clearSelection();
+          return;
+        }
+
+        selectedSquare = clickedId;
+        legalMovesForSelected = generateLegalMovesForSquare(gameState, row, col);
+        highlightSelection();
+      }
+
+      function highlightSelection() {
+        document.querySelectorAll(".square").forEach((sq) => {
+          sq.classList.remove("selected", "highlight-move", "highlight-capture");
+        });
+
+        if (selectedSquare === null) return;
+        const { row, col } = rowColFromId(selectedSquare);
+        const selEl = document.querySelector(`.square[data-id="${selectedSquare}"]`);
+        if (selEl) selEl.classList.add("selected");
+
+        legalMovesForSelected.forEach((m) => {
+          const el = document.querySelector(`.square[data-id="${m.to}"]`);
+          if (!el) return;
+          if (m.captured) el.classList.add("highlight-capture");
+          else el.classList.add("highlight-move");
+        });
+      }
+
+      function clearSelection() {
+        selectedSquare = null;
+        legalMovesForSelected = [];
+        document
+          .querySelectorAll(".square")
+          .forEach((sq) => sq.classList.remove("selected", "highlight-move", "highlight-capture"));
+      }
+
+      function generateAllLegalMoves(state, color) {
+        const moves = [];
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const piece = state.board[r][c];
+            if (!piece) continue;
+            const isWhite = piece === piece.toUpperCase();
+            if ((color === "w" && !isWhite) || (color === "b" && isWhite)) continue;
+            moves.push(...generateLegalMovesForSquare(state, r, c));
+          }
+        }
+        return moves;
+      }
+
+      function generateLegalMovesForSquare(state, row, col) {
+        const piece = state.board[row][col];
+        if (!piece) return [];
+        const isWhite = piece === piece.toUpperCase();
+        const color = isWhite ? "w" : "b";
+
+        const dirPawn = isWhite ? -1 : 1;
+        const startRow = isWhite ? 6 : 1;
+        const moves = [];
+
+        function addMove(toRow, toCol, options = {}) {
+          if (toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return;
+          const target = state.board[toRow][toCol];
+          if (target && ((color === "w" && target === target.toUpperCase()) || (color === "b" && target === target.toLowerCase()))) {
+            return;
+          }
+          const move = {
+            from: squareId(row, col),
+            to: squareId(toRow, toCol),
+            piece,
+            captured: target || null,
+          };
+          if (!wouldLeaveKingInCheck(state, move, color)) {
+            moves.push(move);
+          }
+        }
+
+        const lower = piece.toLowerCase();
+
+        if (lower === "p") {
+          const nextRow = row + dirPawn;
+          if (state.board[nextRow] && state.board[nextRow][col] === null) {
+            addMove(nextRow, col);
+            const twoRow = row + dirPawn * 2;
+            if (row === startRow && state.board[twoRow][col] === null) addMove(twoRow, col);
+          }
+          [col - 1, col + 1].forEach((nc) => {
+            if (state.board[nextRow] && state.board[nextRow][nc]) {
+              addMove(nextRow, nc);
+            }
+          });
+        } else if (lower === "n") {
+          const jumps = [
+            [row - 2, col - 1],
+            [row - 2, col + 1],
+            [row - 1, col - 2],
+            [row - 1, col + 2],
+            [row + 1, col - 2],
+            [row + 1, col + 2],
+            [row + 2, col - 1],
+            [row + 2, col + 1],
+          ];
+          jumps.forEach(([r, c]) => addMove(r, c));
+        } else if (lower === "b" || lower === "r" || lower === "q") {
+          const directions = [];
+          if (lower === "b" || lower === "q") {
+            directions.push(
+              [1, 1],
+              [1, -1],
+              [-1, 1],
+              [-1, -1]
+            );
+          }
+          if (lower === "r" || lower === "q") {
+            directions.push(
+              [1, 0],
+              [-1, 0],
+              [0, 1],
+              [0, -1]
+            );
+          }
+          for (const [dr, dc] of directions) {
+            let r = row + dr;
+            let c = col + dc;
+            while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+              const target = state.board[r][c];
+              if (target === null) {
+                addMove(r, c);
+              } else {
+                addMove(r, c);
+                break;
+              }
+              r += dr;
+              c += dc;
+            }
+          }
+        } else if (lower === "k") {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              addMove(row + dr, col + dc);
+            }
+          }
+        }
+
+        return moves;
+      }
+
+      function wouldLeaveKingInCheck(state, move, color) {
+        const next = cloneState(state);
+        const { row: fromRow, col: fromCol } = rowColFromId(move.from);
+        const { row: toRow, col: toCol } = rowColFromId(move.to);
+        next.board[toRow][toCol] = next.board[fromRow][fromCol];
+        next.board[fromRow][fromCol] = null;
+        return isKingInCheck(next, color);
+      }
+
+      function findKing(state, color) {
+        const kingChar = color === "w" ? "K" : "k";
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            if (state.board[r][c] === kingChar) return { row: r, col: c };
+          }
+        }
+        return null;
+      }
+
+      function isKingInCheck(state, color) {
+        const kingPos = findKing(state, color);
+        if (!kingPos) return false;
+        const enemyColor = color === "w" ? "b" : "w";
+        const enemyMoves = generateAllLegalMovesIgnoringCheck(state, enemyColor);
+        const kingId = squareId(kingPos.row, kingPos.col);
+        return enemyMoves.some((m) => m.to === kingId);
+      }
+
+      function generateAllLegalMovesIgnoringCheck(state, color) {
+        const moves = [];
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const piece = state.board[r][c];
+            if (!piece) continue;
+            const isWhite = piece === piece.toUpperCase();
+            if ((color === "w" && !isWhite) || (color === "b" && isWhite)) continue;
+            moves.push(...generatePseudoMovesForSquare(state, r, c));
+          }
+        }
+        return moves;
+      }
+
+      function generatePseudoMovesForSquare(state, row, col) {
+        const piece = state.board[row][col];
+        if (!piece) return [];
+        const isWhite = piece === piece.toUpperCase();
+        const color = isWhite ? "w" : "b";
+        const dirPawn = isWhite ? -1 : 1;
+        const startRow = isWhite ? 6 : 1;
+        const moves = [];
+
+        function addMove(toRow, toCol) {
+          if (toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return;
+          const target = state.board[toRow][toCol];
+          if (target && ((color === "w" && target === target.toUpperCase()) || (color === "b" && target === target.toLowerCase()))) {
+            return;
+          }
+          moves.push({
+            from: squareId(row, col),
+            to: squareId(toRow, toCol),
+            piece,
+            captured: target || null,
+          });
+        }
+
+        const lower = piece.toLowerCase();
+
+        if (lower === "p") {
+          const nextRow = row + dirPawn;
+          if (state.board[nextRow] && state.board[nextRow][col] === null) {
+            addMove(nextRow, col);
+            const twoRow = row + dirPawn * 2;
+            if (row === startRow && state.board[twoRow][col] === null) addMove(twoRow, col);
+          }
+          [col - 1, col + 1].forEach((nc) => {
+            if (state.board[nextRow] && state.board[nextRow][nc]) {
+              addMove(nextRow, nc);
+            }
+          });
+        } else if (lower === "n") {
+          const jumps = [
+            [row - 2, col - 1],
+            [row - 2, col + 1],
+            [row - 1, col - 2],
+            [row - 1, col + 2],
+            [row + 1, col - 2],
+            [row + 1, col + 2],
+            [row + 2, col - 1],
+            [row + 2, col + 1],
+          ];
+          jumps.forEach(([r, c]) => addMove(r, c));
+        } else if (lower === "b" || lower === "r" || lower === "q") {
+          const directions = [];
+          if (lower === "b" || lower === "q") {
+            directions.push(
+              [1, 1],
+              [1, -1],
+              [-1, 1],
+              [-1, -1]
+            );
+          }
+          if (lower === "r" || lower === "q") {
+            directions.push(
+              [1, 0],
+              [-1, 0],
+              [0, 1],
+              [0, -1]
+            );
+          }
+          for (const [dr, dc] of directions) {
+            let r = row + dr;
+            let c = col + dc;
+            while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+              const target = state.board[r][c];
+              if (target === null) {
+                addMove(r, c);
+              } else {
+                addMove(r, c);
+                break;
+              }
+              r += dr;
+              c += dc;
+            }
+          }
+        } else if (lower === "k") {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              addMove(row + dr, col + dc);
+            }
+          }
+        }
+
+        return moves;
+      }
+
+      function makeMove(move, options = { fromComputer: false }) {
+        const prevState = cloneState(gameState);
+        const { row: fromRow, col: fromCol } = rowColFromId(move.from);
+        const { row: toRow, col: toCol } = rowColFromId(move.to);
+        const movingPiece = gameState.board[fromRow][fromCol];
+        const targetPiece = gameState.board[toRow][toCol];
+
+        gameState.board[toRow][toCol] = movingPiece;
+        gameState.board[fromRow][fromCol] = null;
+
+        if (targetPiece) {
+          if (movingPiece === movingPiece.toUpperCase()) gameState.capturedWhite.push(targetPiece);
+          else gameState.capturedBlack.push(targetPiece);
+        }
+
+        moveHistory.push({ state: prevState, move });
+
+        if (gameState.activeColor === "b") {
+          gameState.fullmove += 1;
+        }
+        gameState.activeColor = gameState.activeColor === "w" ? "b" : "w";
+
+        clearSelection();
+        renderBoard();
+        maybeTriggerComputerMove(options.fromComputer);
+      }
+
+      function undoLastMove() {
+        if (!moveHistory.length || isComputing) return;
+        const last = moveHistory.pop();
+        gameState = last.state;
+        clearSelection();
+        renderBoard();
+      }
+
+      function maybeTriggerComputerMove(fromComputer) {
+        if (mode !== "computer") return;
+        if (fromComputer) return;
+        if (gameState.activeColor !== "b") return;
+
+        const allMoves = generateAllLegalMoves(gameState, "b");
+        if (!allMoves.length) {
+          const inCheck = isKingInCheck(gameState, "b");
+          if (inCheck) {
+            statusMainEl.textContent = "Checkmate! White wins 🎉";
+          } else {
+            statusMainEl.textContent = "Stalemate. It's a draw 🤝";
+          }
+          return;
+        }
+
+        isComputing = true;
+        updateStatus();
+
+        setTimeout(() => {
+          const chosen = chooseComputerMove(gameState, difficulty);
+          isComputing = false;
+          if (chosen) {
+            makeMove(chosen, { fromComputer: true });
+          }
+        }, difficulty === "easy" ? 250 : 450);
+      }
+
+      function chooseComputerMove(state, difficultyLevel) {
+        const color = "b";
+        const moves = generateAllLegalMoves(state, color);
+        if (!moves.length) return null;
+
+        if (difficultyLevel === "easy") {
+          return moves[Math.floor(Math.random() * moves.length)];
+        }
+
+        // scoring with shallow search
+        const depth = difficultyLevel === "medium" ? 1 : difficultyLevel === "hard" ? 2 : 3;
+
+        let bestScore = -Infinity;
+        let bestMoves = [];
+
+        for (const move of moves) {
+          const next = cloneState(state);
+          const { row: fromRow, col: fromCol } = rowColFromId(move.from);
+          const { row: toRow, col: toCol } = rowColFromId(move.to);
+          const movingPiece = next.board[fromRow][fromCol];
+          const targetPiece = next.board[toRow][toCol];
+          next.board[toRow][toCol] = movingPiece;
+          next.board[fromRow][fromCol] = null;
+          next.activeColor = next.activeColor === "w" ? "b" : "w";
+
+          const score = minimax(next, depth - 1, -Infinity, Infinity, false);
+          if (score > bestScore) {
+            bestScore = score;
+            bestMoves = [move];
+          } else if (score === bestScore) {
+            bestMoves.push(move);
+          }
+        }
+
+        return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+      }
+
+      function minimax(state, depth, alpha, beta, maximizingForBlack) {
+        if (depth === 0) return evaluateBoard(state);
+
+        const color = maximizingForBlack ? "b" : "w";
+        const moves = generateAllLegalMoves(state, color);
+
+        if (!moves.length) {
+          const inCheck = isKingInCheck(state, color);
+          if (inCheck) {
+            return maximizingForBlack ? -9999 : 9999;
+          }
+          return 0;
+        }
+
+        if (maximizingForBlack) {
+          let maxEval = -Infinity;
+          for (const move of moves) {
+            const next = cloneState(state);
+            const { row: fromRow, col: fromCol } = rowColFromId(move.from);
+            const { row: toRow, col: toCol } = rowColFromId(move.to);
+            const movingPiece = next.board[fromRow][fromCol];
+            next.board[toRow][toCol] = movingPiece;
+            next.board[fromRow][fromCol] = null;
+            next.activeColor = next.activeColor === "w" ? "b" : "w";
+            const evalScore = minimax(next, depth - 1, alpha, beta, false);
+            maxEval = Math.max(maxEval, evalScore);
+            alpha = Math.max(alpha, evalScore);
+            if (beta <= alpha) break;
+          }
+          return maxEval;
+        } else {
+          let minEval = Infinity;
+          for (const move of moves) {
+            const next = cloneState(state);
+            const { row: fromRow, col: fromCol } = rowColFromId(move.from);
+            const { row: toRow, col: toCol } = rowColFromId(move.to);
+            const movingPiece = next.board[fromRow][fromCol];
+            next.board[toRow][toCol] = movingPiece;
+            next.board[fromRow][fromCol] = null;
+            next.activeColor = next.activeColor === "w" ? "b" : "w";
+            const evalScore = minimax(next, depth - 1, alpha, beta, true);
+            minEval = Math.min(minEval, evalScore);
+            beta = Math.min(beta, evalScore);
+            if (beta <= alpha) break;
+          }
+          return minEval;
+        }
+      }
+
+      function evaluateBoard(state) {
+        const values = {
+          p: 1,
+          n: 3,
+          b: 3,
+          r: 5,
+          q: 9,
+          k: 1000,
+        };
+        let score = 0;
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const piece = state.board[r][c];
+            if (!piece) continue;
+            const val = values[piece.toLowerCase()] || 0;
+            score += piece === piece.toUpperCase() ? val : -val;
+          }
+        }
+        return score;
+      }
+
+      function updateStatus() {
+        const color = gameState.activeColor;
+        const allMoves = generateAllLegalMoves(gameState, color);
+        const inCheck = isKingInCheck(gameState, color);
+        const isComputerTurn = mode === "computer" && color === "b";
+
+        if (!allMoves.length) {
+          if (inCheck) {
+            statusMainEl.textContent =
+              color === "w" ? "Checkmate! Black wins 🎉" : "Checkmate! White wins 🎉";
+          } else {
+            statusMainEl.textContent = "Stalemate. It's a draw 🤝";
+          }
+          statusMainEl.className = "status-main";
+          statusSubEl.textContent =
+            "Game over. Start a new game or change the mode/difficulty to try again.";
+          return;
+        }
+
+        if (color === "w") {
+          statusMainEl.textContent = "White to move";
+          statusMainEl.className = "status-main player-white";
+        } else if (isComputerTurn) {
+          statusMainEl.textContent = "Computer (Black) is thinking...";
+          statusMainEl.className = "status-main computer-turn";
+        } else {
+          statusMainEl.textContent = "Black to move";
+          statusMainEl.className = "status-main player-black";
+        }
+
+        if (inCheck) {
+          statusSubEl.textContent = "Check! Defend your king or block the attack.";
+        } else if (mode === "computer" && color === "b") {
+          statusSubEl.textContent = "Computer will pick a move based on the selected difficulty.";
+        } else if (mode === "computer") {
+          statusSubEl.textContent =
+            "You control the white pieces. Try to checkmate the computer!";
+        } else {
+          statusSubEl.textContent =
+            "Tap a piece to see its moves. Play alternates between White and Black.";
+        }
+      }
+
+      function renderCaptured() {
+        capturedWhiteEl.innerHTML = "";
+        capturedBlackEl.innerHTML = "";
+        gameState.capturedWhite.forEach((p) => {
+          const span = document.createElement("span");
+          span.textContent = pieceSymbols[p] || "";
+          capturedWhiteEl.appendChild(span);
+        });
+        gameState.capturedBlack.forEach((p) => {
+          const span = document.createElement("span");
+          span.textContent = pieceSymbols[p] || "";
+          capturedBlackEl.appendChild(span);
+        });
+      }
+
+      function renderMovesLog() {
+        movesListEl.innerHTML = "";
+        moveHistory.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.classList.add("move-item");
+          const moveNum = Math.floor(index / 2) + 1;
+          const color = index % 2 === 0 ? "White" : "Black";
+          const { from, to, piece, captured } = entry.move;
+          li.innerHTML = `<span>${moveNum}.${color[0]}</span>${piece} ${squareName(from)}→${squareName(
+            to
+          )}${captured ? " x" + captured : ""}`;
+          movesListEl.appendChild(li);
+        });
+      }
+
+      function squareName(id) {
+        const files = "abcdefgh";
+        const { row, col } = rowColFromId(id);
+        return files[col] + (8 - row);
+      }
+
+      function resetGame() {
+        gameState = createGameStateFromFen(START_FEN);
+        moveHistory = [];
+        clearSelection();
+        renderBoard();
+        maybeTriggerComputerMove(false);
+      }
+
+      newGameBtn.addEventListener("click", () => resetGame());
+      undoBtn.addEventListener("click", () => undoLastMove());
+
+      modeHumanBtn.addEventListener("click", () => {
+        mode = "human";
+        modeHumanBtn.classList.add("active");
+        modeComputerBtn.classList.remove("active");
+        difficultyRow.style.display = "none";
+        resetGame();
+      });
+
+      modeComputerBtn.addEventListener("click", () => {
+        mode = "computer";
+        modeComputerBtn.classList.add("active");
+        modeHumanBtn.classList.remove("active");
+        difficultyRow.style.display = "flex";
+        resetGame();
+      });
+
+      difficultySelect.addEventListener("change", () => {
+        difficulty = difficultySelect.value;
+      });
+
+      // initial render
+      renderBoard();
+      maybeTriggerComputerMove(false);
+    </script>
+  </body>
+</html>
+
+

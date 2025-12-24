@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayHub - Mini Games for Everyone</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <header class="nav">
+      <div class="logo">
+        <span class="logo-icon">🎮</span>
+        <span class="logo-text">PlayHub</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#games">Games</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#about">About</a>
+      </nav>
+      <button class="nav-cta" type="button">Start Playing</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>
+            Quick, fun
+            <span class="hero-highlight">mini games</span>
+            in one colorful place.
+          </h1>
+          <p class="hero-subtitle">
+            Challenge your friends to Tic Tac Toe, outsmart them in Chess, or
+            discover new mini-games. No downloads, just tap and play.
+          </p>
+          <div class="hero-actions">
+            <button class="btn primary" type="button" onclick="scrollToGames()">
+              Explore games
+            </button>
+            <button class="btn ghost" type="button">
+              Random game 🎲
+            </button>
+          </div>
+          <div class="hero-tags">
+            <span class="pill">Ages 10–16</span>
+            <span class="pill pill-secondary">Multiplayer-ready</span>
+            <span class="pill pill-soft">No sign up required</span>
+          </div>
+        </div>
+        <div class="hero-showcase">
+          <div class="game-preview card tic-tac-toe" id="hero-tic-tac-toe">
+            <h3>Tic Tac Toe</h3>
+            <div class="grid">
+              <span>X</span><span>O</span><span>X</span>
+              <span>O</span><span>X</span><span>O</span>
+              <span>O</span><span>X</span><span></span>
+            </div>
+          </div>
+          <div class="game-preview card chess" id="hero-chess">
+            <h3>Chess</h3>
+            <div class="mini-board">
+              <span class="piece white">♔</span>
+              <span class="piece white">♕</span>
+              <span class="piece white">♖</span>
+              <span class="piece black">♚</span>
+              <span class="piece black">♛</span>
+              <span class="piece black">♜</span>
+            </div>
+          </div>
+          <div class="floating-badge badge-players">
+            <span class="dot dot-green"></span>
+            24 friends online
+          </div>
+          <div class="floating-badge badge-streak">
+            🔥 7‑day streak
+          </div>
+        </div>
+      </section>
+
+      <section id="games" class="games-section">
+        <div class="section-header">
+          <h2>Pick a game and jump in</h2>
+          <p>Start with these and we’ll add more together as the project grows.</p>
+        </div>
+
+        <div class="games-grid">
+          <article class="game-card">
+            <div class="game-badge">Classic</div>
+            <h3>Tic Tac Toe</h3>
+            <p>Quick 3×3 battles. First to three in a row wins. Great for instant duels.</p>
+            <div class="game-meta">
+              <span>2 players</span>
+              <span>1–3 min</span>
+            </div>
+            <button class="btn small" type="button" data-game="tic-tac-toe">
+              Play now
+            </button>
+          </article>
+
+          <article class="game-card">
+            <div class="game-badge badge-purple">Brainy</div>
+            <h3>Chess</h3>
+            <p>Think ahead, plan your moves, and checkmate your opponent.</p>
+            <div class="game-meta">
+              <span>2 players</span>
+              <span>5–20 min</span>
+            </div>
+            <button class="btn small" type="button" data-game="chess">
+              Play now
+            </button>
+          </article>
+
+          <article class="game-card placeholder">
+            <div class="game-badge badge-green">Coming soon</div>
+            <h3>Your next game</h3>
+            <p>We’ll plug in new mini games here: memory cards, connect four, and more.</p>
+            <div class="game-meta">
+              <span>Single / Multi</span>
+              <span>Custom</span>
+            </div>
+            <button class="btn small outline" type="button">
+              Suggest a game
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="info-section">
+        <div class="section-header">
+          <h2>How this site will work</h2>
+          <p>Simple steps to keep it fun and fast for players (and easy for us to build).</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <h3>Choose a game</h3>
+            <p>Click any game card to open the game screen in the same bright style.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <h3>Invite a friend</h3>
+            <p>Local play on one device first. Later we can add online matches.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <h3>Track your streak</h3>
+            <p>We can add XP, levels, and streaks to keep players coming back.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="info-section soft">
+        <div class="section-header">
+          <h2>Built to grow with your ideas</h2>
+          <p>
+            This landing page is the hub. From here, we can keep attaching new mini
+            games and features as we develop them.
+          </p>
+        </div>
+        <div class="about-grid">
+          <div class="about-card">
+            <h3>Bright & friendly UI</h3>
+            <p>Colorful gradients, smooth hover effects, and playful typography tuned for ages 10–16.</p>
+          </div>
+          <div class="about-card">
+            <h3>Easy to extend</h3>
+            <p>Each game will be its own module. We just plug it into this grid with a few lines of code.</p>
+          </div>
+          <div class="about-card">
+            <h3>Works on any device</h3>
+            <p>Responsive layout so kids can play on laptops, tablets, or phones.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Made with 💛 for future game devs.</p>
+    </footer>
+
+    <div class="toast" id="toast">
+      <span class="toast-text"></span>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
+

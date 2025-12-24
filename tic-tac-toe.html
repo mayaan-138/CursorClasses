@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe - PlayHub</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .game-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .game-container {
+        max-width: 720px;
+        margin: 80px auto 40px;
+        padding: 24px 18px 32px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: radial-gradient(circle at 0 0, rgba(248, 113, 113, 0.2), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.24), transparent 55%),
+          rgba(15, 23, 42, 0.96);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.96);
+        backdrop-filter: blur(24px);
+      }
+
+      .game-header {
+        text-align: center;
+        margin-bottom: 22px;
+      }
+
+      .game-header h1 {
+        font-family: "Baloo 2", system-ui;
+        font-size: 2.4rem;
+        margin-bottom: 6px;
+        background: linear-gradient(120deg, #fde68a, #fb7185, #a5b4fc);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+
+      .game-header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      .game-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 22px;
+        margin-top: 10px;
+      }
+
+      .game-board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 24px;
+        padding: 18px;
+      }
+
+      .cell {
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: radial-gradient(circle at top, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 1));
+        border: 2px solid rgba(148, 163, 184, 0.4);
+        color: #e5e7eb;
+        font-size: 2.6rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease,
+          background 0.16s ease, opacity 0.16s ease;
+        font-family: "Baloo 2", system-ui;
+      }
+
+      .cell:hover:not(.disabled) {
+        background: radial-gradient(circle at top, rgba(34, 197, 94, 0.2), rgba(15, 23, 42, 0.96));
+        border-color: rgba(34, 197, 94, 0.75);
+        transform: scale(1.05);
+        box-shadow: 0 12px 26px rgba(22, 163, 74, 0.5);
+      }
+
+      .cell.disabled {
+        cursor: not-allowed;
+        opacity: 0.75;
+      }
+
+      .cell.x {
+        color: #4ade80;
+        text-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+      }
+
+      .cell.o {
+        color: #f97316;
+        text-shadow: 0 0 18px rgba(249, 115, 22, 0.6);
+      }
+
+      .cell.winning {
+        background: radial-gradient(circle at top, rgba(34, 197, 94, 0.4), rgba(15, 23, 42, 0.98));
+        border-color: #22c55e;
+        animation: ttt-pulse 0.6s ease;
+      }
+
+      @keyframes ttt-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .game-side {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .status-message {
+        font-size: 1.1rem;
+        font-weight: 600;
+        min-height: 28px;
+      }
+
+      .status-message.player-turn {
+        color: #4ade80;
+      }
+
+      .status-message.computer-turn {
+        color: #f97316;
+        animation: ttt-blink 1s infinite;
+      }
+
+      .status-message.winner {
+        color: #22c55e;
+        font-size: 1.35rem;
+      }
+
+      .status-message.draw {
+        color: #94a3b8;
+      }
+
+      @keyframes ttt-blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .score-board {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 0.86rem;
+      }
+
+      .score-item {
+        flex: 1;
+        min-width: 110px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+      }
+
+      .score-label {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+
+      .score-value {
+        display: block;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      .tips-card {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: radial-gradient(circle at 0 0, rgba(52, 211, 153, 0.2), transparent 55%),
+          rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(52, 211, 153, 0.4);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      .game-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .back-button {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        padding: 7px 14px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        border-radius: 999px;
+        color: #e5e7eb;
+        text-decoration: none;
+        font-size: 0.86rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.96);
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        z-index: 25;
+      }
+
+      .back-button:hover {
+        transform: translateX(-2px);
+        border-color: rgba(248, 250, 252, 0.7);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.98);
+      }
+
+      @media (max-width: 800px) {
+        .game-container {
+          margin-top: 76px;
+        }
+
+        .game-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="game-page">
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <a href="index.html" class="back-button">← Back to hub</a>
+
+    <main class="game-container">
+      <div class="game-header">
+        <h1>🎮 Tic Tac Toe</h1>
+        <p>You're <strong>X</strong>, the computer is <strong>O</strong>. Get three in a row to win!</p>
+      </div>
+
+      <div class="game-layout">
+        <div class="game-board" id="board">
+          <div class="cell" data-index="0"></div>
+          <div class="cell" data-index="1"></div>
+          <div class="cell" data-index="2"></div>
+          <div class="cell" data-index="3"></div>
+          <div class="cell" data-index="4"></div>
+          <div class="cell" data-index="5"></div>
+          <div class="cell" data-index="6"></div>
+          <div class="cell" data-index="7"></div>
+          <div class="cell" data-index="8"></div>
+        </div>
+
+        <div class="game-side">
+          <div id="status" class="status-message player-turn">
+            Your turn! Click a square to place <span style="color: #4ade80">X</span>.
+          </div>
+
+          <div class="score-board">
+            <div class="score-item">
+              <span class="score-label">You (X)</span>
+              <span id="player-score" class="score-value" style="color: #4ade80">0</span>
+            </div>
+            <div class="score-item">
+              <span class="score-label">Computer (O)</span>
+              <span id="computer-score" class="score-value" style="color: #f97316">0</span>
+            </div>
+            <div class="score-item">
+              <span class="score-label">Draws</span>
+              <span id="draw-score" class="score-value" style="color: #94a3b8">0</span>
+            </div>
+          </div>
+
+          <div class="tips-card">
+            Tip: Try to take the <strong>center</strong> or a <strong>corner</strong> first.
+            The computer will try to win, block you, and take smart positions.
+          </div>
+
+          <div class="game-controls">
+            <button class="btn primary" type="button" id="new-game-btn">New game</button>
+            <button class="btn ghost" type="button" id="reset-scores-btn">Reset scores</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const cells = document.querySelectorAll(".cell");
+      const statusEl = document.getElementById("status");
+      const playerScoreEl = document.getElementById("player-score");
+      const computerScoreEl = document.getElementById("computer-score");
+      const drawScoreEl = document.getElementById("draw-score");
+      const newGameBtn = document.getElementById("new-game-btn");
+      const resetScoresBtn = document.getElementById("reset-scores-btn");
+
+      let board = ["", "", "", "", "", "", "", "", ""];
+      let currentPlayer = "X";
+      let gameActive = true;
+      let scores = {
+        player: 0,
+        computer: 0,
+        draws: 0,
+      };
+
+      const winningCombos = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      cells.forEach((cell) => {
+        cell.addEventListener("click", () => handlePlayerMove(cell));
+      });
+
+      newGameBtn.addEventListener("click", resetBoard);
+      resetScoresBtn.addEventListener("click", resetScores);
+
+      function handlePlayerMove(cell) {
+        const index = Number(cell.getAttribute("data-index"));
+        if (!gameActive || currentPlayer !== "X" || board[index] !== "") return;
+
+        placeMark(index, "X");
+
+        if (!gameActive) return;
+
+        setTimeout(() => {
+          computerMove();
+        }, 450);
+      }
+
+      function placeMark(index, player) {
+        board[index] = player;
+        const cell = cells[index];
+        cell.textContent = player;
+        cell.classList.add(player.toLowerCase(), "disabled");
+
+        const winner = getWinner();
+        if (winner) {
+          gameActive = false;
+          highlightWinning(winner.combo);
+          if (winner.player === "X") {
+            scores.player += 1;
+            playerScoreEl.textContent = scores.player;
+            setStatus("🎉 You win! Nice strategy!", "winner");
+          } else {
+            scores.computer += 1;
+            computerScoreEl.textContent = scores.computer;
+            setStatus("🤖 Computer wins this round!", "winner");
+          }
+          return;
+        }
+
+        if (board.every((val) => val !== "")) {
+          gameActive = false;
+          scores.draws += 1;
+          drawScoreEl.textContent = scores.draws;
+          setStatus("It's a draw! 🤝 Try again.", "draw");
+          return;
+        }
+
+        currentPlayer = player === "X" ? "O" : "X";
+        updateTurnStatus();
+      }
+
+      function computerMove() {
+        if (!gameActive || currentPlayer !== "O") return;
+
+        // try to win
+        let move = findSmartMove("O");
+        if (move === -1) {
+          // try to block
+          move = findSmartMove("X");
+        }
+        if (move === -1 && board[4] === "") {
+          move = 4;
+        }
+        if (move === -1) {
+          const corners = [0, 2, 6, 8].filter((i) => board[i] === "");
+          if (corners.length) {
+            move = corners[Math.floor(Math.random() * corners.length)];
+          }
+        }
+        if (move === -1) {
+          const available = board
+            .map((val, idx) => (val === "" ? idx : -1))
+            .filter((idx) => idx !== -1);
+          if (!available.length) return;
+          move = available[Math.floor(Math.random() * available.length)];
+        }
+
+        placeMark(move, "O");
+      }
+
+      function findSmartMove(player) {
+        for (const [a, b, c] of winningCombos) {
+          const line = [board[a], board[b], board[c]];
+          const playerCount = line.filter((v) => v === player).length;
+          const emptyIndexInLine = [a, b, c].find((idx) => board[idx] === "");
+          if (playerCount === 2 && emptyIndexInLine !== undefined) {
+            return emptyIndexInLine;
+          }
+        }
+        return -1;
+      }
+
+      function getWinner() {
+        for (const combo of winningCombos) {
+          const [a, b, c] = combo;
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return { player: board[a], combo };
+          }
+        }
+        return null;
+      }
+
+      function highlightWinning(combo) {
+        combo.forEach((idx) => {
+          cells[idx].classList.add("winning");
+        });
+      }
+
+      function resetBoard() {
+        board = ["", "", "", "", "", "", "", "", ""];
+        currentPlayer = "X";
+        gameActive = true;
+        cells.forEach((cell) => {
+          cell.textContent = "";
+          cell.classList.remove("x", "o", "disabled", "winning");
+        });
+        setStatus("New round! You start as X.", "player-turn");
+      }
+
+      function resetScores() {
+        scores = { player: 0, computer: 0, draws: 0 };
+        playerScoreEl.textContent = "0";
+        computerScoreEl.textContent = "0";
+        drawScoreEl.textContent = "0";
+        resetBoard();
+      }
+
+      function setStatus(text, type) {
+        statusEl.textContent = text;
+        statusEl.className = "status-message " + type;
+      }
+
+      function updateTurnStatus() {
+        if (currentPlayer === "X") {
+          setStatus("Your turn! Click a square to place X.", "player-turn");
+        } else {
+          setStatus("Computer is thinking...", "computer-turn");
+        }
+      }
+    </script>
+  </body>
+</html>
+
+
